@@ -11,7 +11,7 @@ const SECRET = process.env.SECRET || (() => {
 })();
 const db = new DatabaseSync(path.join(DATA, "lgs.db"));
 db.exec("CREATE TABLE IF NOT EXISTS docs(col TEXT, id TEXT, data TEXT, PRIMARY KEY(col,id))");
-const COLS = ["accounts", "exams", "results", "resources", "schools", "ann", "notes", "msgs", "appts"];
+const COLS = ["accounts", "exams", "results", "resources", "schools", "ann", "notes", "msgs", "appts", "programs"];
 const q = {
   all: db.prepare("SELECT id,data FROM docs WHERE col=?"),
   one: db.prepare("SELECT data FROM docs WHERE col=? AND id=?"),
@@ -59,6 +59,7 @@ function readCol(col, u) {
       return R.map(r => (r.tc === u.tc || (u.role === "veli" && r.tc === u.child)) ? r
         : { id: "a_" + alias(r.tc) + "_" + r.exam, exam: r.exam, tc: "anon", r: r.r, date: r.date });
     case "notes": return S ? R : [];
+    case "programs": return S ? R : R.filter(p => p.tc === u.tc || (u.role === "veli" && p.tc === u.child));
     case "msgs":
       if (S) return R;
       return R.filter(m => m.from === u.tc || m.to === u.tc).map(m => m.from === u.tc ? m : { ...m, from: alias(m.from) });
@@ -85,6 +86,16 @@ function writeDoc(col, op, id, body, u) {
       throw err(403, "Yetkisiz");
     }
     throw err(403, "Yetkisiz");
+  }
+  if (col === "programs") {
+    const own = old && old.tc === u.tc;
+    if (S) return op === "delete" ? { del: true } : { data: op === "update" ? { ...old, ...body } : body };
+    if (u.role !== "ogrenci") throw err(403, "Yetkisiz");
+    if (op === "delete") { if (!own) throw err(403, "Yetkisiz"); return { del: true }; }
+    if (op !== "add" && !own) throw err(403, "Yetkisiz");
+    const d = { ...body, tc: u.tc, name: u.name };
+    if (JSON.stringify(d).length > 2e5) throw err(413, "Program çok büyük");
+    return { data: op === "update" ? { ...old, ...d } : d };
   }
   if (!S) throw err(403, "Yetkisiz");
   if (col === "accounts") {

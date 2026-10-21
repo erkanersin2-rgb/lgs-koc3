@@ -7,6 +7,9 @@ Bu sürümde veritabanı ve giriş sistemi sunucudadır. Öğrenci, veli ve öğ
 - `public/index.html`: arayüz (tarayıcıda çalışır, sunucuya `/api` üzerinden bağlanır)
 - `Dockerfile`: konteyner olarak yayınlamak için
 
+## Program sekmesi (çalışma programı robotu)
+Öğrenci "Program" sekmesinde sınıfını, günlük hedef soru sayısını, dinlenme gününü, çalışmak istediği konuları (konu tekrarı, soru çözümü, video ders; istenirse belirli bir gün) ve günlük rutinleri seçer. Robot haftalık programı üretir ve sisteme kaydeder. Öğrenci görevleri işaretler, yazdırır veya PDF olarak kaydeder, isterse yapay zeka koç yorumu alır. Rehber ve branş öğretmeni istediği öğrenci için program hazırlayabilir, veli bağlı olduğu öğrencinin programını yalnızca görüntüler. Konu listeleri örnektir, öğrenci özel konu ekleyebilir.
+
 ## Bilgisayarında deneme
 1. Node.js 22.13 veya üstünü kur (önerilen: 24).
 2. Klasörde `node server.js` çalıştır.
